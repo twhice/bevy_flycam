@@ -10,7 +10,7 @@ pub mod prelude {
 #[derive(Component)]
 pub struct FpsCamera {
     pub sensitivity: f32,
-    pub speed: Mat4,
+    pub speed: Vec3,
     pub move_forward: KeyCode,
     pub move_backward: KeyCode,
     pub move_left: KeyCode,
@@ -21,7 +21,7 @@ impl Default for FpsCamera {
     fn default() -> Self {
         Self {
             sensitivity: 30.0,
-            speed: Mat4::from_scale(Vec3::splat(1.0)),
+            speed: Vec3::splat(1.0),
             move_forward: KeyCode::W,
             move_backward: KeyCode::S,
             move_left: KeyCode::A,
@@ -68,15 +68,14 @@ fn player_move(
             } else if key == setting.move_backward {
                 velocity -= forward;
             } else if key == setting.move_left {
-                velocity -= right;
-            } else if key == setting.move_right {
                 velocity += right;
+            } else if key == setting.move_right {
+                velocity -= right;
             }
         }
         velocity = velocity.normalize_or_zero();
 
-        transform.translation += setting
-            .speed
+        transform.translation += Mat4::from_scale(setting.speed)
             .transform_vector3(velocity.normalize_or_zero())
             * time.delta_seconds();
     }

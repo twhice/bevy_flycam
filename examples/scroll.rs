@@ -100,7 +100,7 @@ fn scroll(
                     perspective.fov = (perspective.fov - event.y * 0.01).abs();
                     println!("FOV: {:?}", perspective.fov);
                 }
-                camera.speed *= Mat4::from_scale(Vec3::splat(event.y * 0.1));
+                camera.speed += Vec3::splat(event.y * 0.1);
                 println!("Speed: {:?}", camera.speed);
             }
         } else {

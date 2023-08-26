@@ -38,7 +38,7 @@ There are a few notable differences from [bevy_fly_camera](https://github.com/mc
     ```toml
     [dependencies]
     bevy = "0.11"
-    bevy_flycam = { git = "https://github.com/sburris0/bevy_flycam" }
+    bevy_flycam = { git = "https://github.com/twhice/bevy_flycam" }
     ```
 
 2. Include the prelude:
