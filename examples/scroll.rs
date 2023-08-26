@@ -17,9 +17,6 @@ fn main() {
         .add_plugins(DefaultPlugins)
         //NoCameraPlayerPlugin as we provide the camera
         .add_plugins(NoCameraPlayerPlugin)
-        .insert_resource(MovementSettings {
-            ..Default::default()
-        })
         // Setting initial state
         .add_state::<ScrollType>()
         .add_systems(Startup, setup)
@@ -64,7 +61,9 @@ fn setup(
             transform: Transform::from_xyz(-2.0, 5.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y),
             ..Default::default()
         },
-        FlyCam,
+        FpsCamera {
+            ..Default::default()
+        },
     ));
 
     info!("Press 'Z' to switch between Movement Speed and Zoom");
@@ -90,15 +89,20 @@ fn switch_scroll_type(
 
 /// Depending on the state, the mouse-scroll changes either the movement speed or the field-of-view of the camera
 fn scroll(
-    mut settings: ResMut<MovementSettings>,
     scroll_type: Res<State<ScrollType>>,
     mut mouse_wheel_events: EventReader<MouseWheel>,
-    mut query: Query<(&FlyCam, &mut Projection)>,
+    mut query: Query<(&mut FpsCamera, &mut Projection)>,
 ) {
     for event in mouse_wheel_events.iter() {
         if *scroll_type.get() == ScrollType::MovementSpeed {
-            settings.speed = (settings.speed + event.y * 0.1).abs();
-            println!("Speed: {:?}", settings.speed);
+            for (mut camera, project) in query.iter_mut() {
+                if let Projection::Perspective(perspective) = project.into_inner() {
+                    perspective.fov = (perspective.fov - event.y * 0.01).abs();
+                    println!("FOV: {:?}", perspective.fov);
+                }
+                camera.speed *= Mat4::from_scale(Vec3::splat(event.y * 0.1));
+                println!("Speed: {:?}", camera.speed);
+            }
         } else {
             for (_camera, project) in query.iter_mut() {
                 if let Projection::Perspective(perspective) = project.into_inner() {
